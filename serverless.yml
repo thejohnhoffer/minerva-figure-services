@@ -10,7 +10,16 @@ functions:
     handler: handler.render
     events:
       - http:
+          cors: true
           method: get
           path: render
+          contentHandling: CONVERT_TO_BINARY
 plugins:
   - serverless-attach-managed-policy
+  - serverless-python-requirements
+  - serverless-pseudo-parameters
+  - serverless-apigwy-binary
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    dockerFile: Dockerfile
