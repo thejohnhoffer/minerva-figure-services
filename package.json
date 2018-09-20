@@ -1,0 +1,21 @@
+{
+  "name": "minerva-figure-services",
+  "version": "0.0.0",
+  "description": "Lambda functions connecting Minerva to OMERO.figure",
+  "dependencies": {
+    "serverless": "^1.31.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thejohnhoffer/minerva-figure-services.git"
+  },
+  "author": "John Hoffer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thejohnhoffer/minerva-figure-services/issues"
+  },
+  "homepage": "https://github.com/thejohnhoffer/minerva-figure-services#readme",
+  "devDependencies": {
+    "serverless-attach-managed-policy": "0.0.7"
+  }
+}

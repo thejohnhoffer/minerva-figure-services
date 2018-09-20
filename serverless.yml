@@ -1,0 +1,16 @@
+service: minerva-figure-services 
+provider:
+  name: aws
+  runtime: python3.6
+  managedPolicyArns:
+    - "arn:aws:iam::292075781285:policy/access_minerva_figures"
+    - "arn:aws:iam::292075781285:policy/create_minerva_figure_services"
+functions:
+  render:
+    handler: handler.render
+    events:
+      - http:
+          method: get
+          path: render
+plugins:
+  - serverless-attach-managed-policy
