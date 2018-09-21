@@ -4,10 +4,11 @@
   "description": "Lambda functions connecting Minerva to OMERO.figure",
   "dependencies": {
     "serverless": "^1.31.0",
+    "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^0.1.0",
+    "serverless-attach-managed-policy": "0.0.7",
     "serverless-pseudo-parameters": "^2.2.0",
-    "serverless-python-requirements": "^4.2.4",
-    "serverless-attach-managed-policy": "0.0.7"
+    "serverless-python-requirements": "^4.2.4"
   },
   "repository": {
     "type": "git",

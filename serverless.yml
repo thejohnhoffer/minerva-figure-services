@@ -19,7 +19,11 @@ plugins:
   - serverless-python-requirements
   - serverless-pseudo-parameters
   - serverless-apigwy-binary
+  - serverless-apigw-binary
 custom:
   pythonRequirements:
     dockerizePip: non-linux
     dockerFile: Dockerfile
+  apigwBinary:
+    types:
+      - "image/png"
