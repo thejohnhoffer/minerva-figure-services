@@ -12,14 +12,21 @@ functions:
       - http:
           cors: true
           method: get
-          path: render
+          path: webgateway/render_image/{token}/{uuid}/{z}/{t}/
           contentHandling: CONVERT_TO_BINARY
+          request:
+            parameters:
+              querystrings:
+                c: true
+                m: true
+                maps: true
 plugins:
   - serverless-attach-managed-policy
   - serverless-python-requirements
   - serverless-pseudo-parameters
   - serverless-apigwy-binary
   - serverless-apigw-binary
+  - serverless-offline-python
 custom:
   pythonRequirements:
     dockerizePip: non-linux

@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/thejohnhoffer/minerva-figure-services/issues"
   },
-  "homepage": "https://github.com/thejohnhoffer/minerva-figure-services#readme"
+  "homepage": "https://github.com/thejohnhoffer/minerva-figure-services#readme",
+  "devDependencies": {
+    "serverless-offline-python": "^3.21.2"
+  }
 }
