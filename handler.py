@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 def _event_path_param(event, key):
     '''
     return {
-        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzgwMDE3OCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc4MDM3NzgsImlhdCI6MTUzNzgwMDE3OCwiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.g5EBnegA6dMRmVHyAAC-9Kf_dyAK_i3aWVmCcXwT-cogOaWTGd2h4MB1pimtXvw5jqjjA3yMi5oYKJ2jjmg34x-DloUm-2CoNZegI6RGrFZurSvgYnndTxbpbn5eT22iqBLfypvxYzXNkLKgiI632jkQzn9GbtEH4MYR9eFPkcmKRWzyVkN1c0y-Jps-BFBl30uF9frIqe0ApFdULsun71zVHI_Cw5RwHMlbslCjxQcp4kuXFum0OBwufJDdWWEIjDwfmYFMfjTWatg5g5NpGJ3Ile5t3YmBok6xDxJed3GIEssx_y4jOQMstQZr8HdHZClk_0v03-_zCKy95OVFgA',
+        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzg5Nzk1OSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc5MDE1NTksImlhdCI6MTUzNzg5Nzk1OSwiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.mgtgoWVyIAxx1foU60k71heG8f5Ocp8K1eLLc1U1ldGlcmn7LikNl1geFW3hsy9bU2t0VKVQsnFl2CxDc82qrWviQZLTVsTL9kkpTOc_n5I7MuBD-ByXCyqymgAMnc3xWWnBcwDKVuy8vQvutaUWbEwgl2StPItnJ7il4qLViGaSNeT5b3mkzmg84Zpl4hbB_DNx5wVxjdt1jjcMT4Q6RNl-vB0DXVsRBeNFDAW341YwSj1tZ_ywWpK1z1xP3mAJNJLce-tqvtfEgyqVdVfwFC0j_TdXFpRa-P5NYh89YWKz6aoLiQB70-YfW-7EwrW7thJMjXE5WFODvYS3kUadog',
         'uuid': 'afd6f4bd-67de-4df2-b518-0e9b05a49012',
         'z': '0',
         't': '0'
@@ -31,15 +31,14 @@ def _event_path_param(event, key):
 
 def _event_query_params(event):
     '''
+    query_params = event['queryStringParameters']
     return {
         'c': '1|13746:22528$FFFFFF',
         'maps': '[{"reverse":{"enabled":false}}]',
         'm': 'c'
     }
     '''
-    query_params = event['queryStringParameters']
-    print(query_params)
-    return query_params
+    return event['queryStringParameters']
 
 
 def json_custom(obj: Any) -> str:
@@ -161,10 +160,6 @@ class Handler:
     def render(self, event, context):
         '''Render the specified tile with the given settings'''
 
-        # CV2 requires 0 - 255 values
-        composite = np.zeros((512, 512, 3), dtype=np.uint8)
-        composite *= 255
-
         # Path and Query parameters
         query_dict = _event_query_params(event)
         self.token = _event_path_param(event, 'token')
@@ -205,8 +200,8 @@ class Handler:
 
         # Return encoded png
         output = (255 * out).astype(np.uint8)
-        png_output = cv2.imencode('.png', output[:425, :424, :])[1]
-        print('encoded length is ', type(png_output))
+        png_output = cv2.imencode('.png', output)[1]  # DESIRED
+        print('encoded length is ', len(png_output))
         return png_output
 
 

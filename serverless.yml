@@ -3,6 +3,7 @@ provider:
   name: aws
   runtime: python3.6
   managedPolicyArns:
+    - "arn:aws:iam::292075781285:policy/read_minerva_metadata"
     - "arn:aws:iam::292075781285:policy/access_minerva_figures"
     - "arn:aws:iam::292075781285:policy/create_minerva_figure_services"
 functions:
@@ -18,15 +19,19 @@ functions:
             parameters:
               querystrings:
                 c: true
-                m: true
-                maps: true
+                m: false
+                maps: false
+              paths:
+                token: true
+                uuid: true
+                z: true
+                t: true
 plugins:
   - serverless-attach-managed-policy
   - serverless-python-requirements
   - serverless-pseudo-parameters
   - serverless-apigwy-binary
   - serverless-apigw-binary
-  - serverless-offline-python
 custom:
   pythonRequirements:
     dockerizePip: non-linux

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Lambda functions connecting Minerva to OMERO.figure",
   "dependencies": {
+    "package.json": "^2.0.1",
     "serverless": "^1.31.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-apigwy-binary": "^0.1.0",
@@ -19,8 +20,5 @@
   "bugs": {
     "url": "https://github.com/thejohnhoffer/minerva-figure-services/issues"
   },
-  "homepage": "https://github.com/thejohnhoffer/minerva-figure-services#readme",
-  "devDependencies": {
-    "serverless-offline-python": "^3.21.2"
-  }
+  "homepage": "https://github.com/thejohnhoffer/minerva-figure-services#readme"
 }
