@@ -1,9 +1,11 @@
 import cv2
 import json
+import boto3
 import base64
 import logging
 import numpy as np
 
+from io import BytesIO
 from functools import wraps
 from datetime import date, datetime
 from typing import Any, Callable, Dict, Union, List
@@ -20,7 +22,7 @@ logger.setLevel(logging.INFO)
 def _event_path_param(event, key):
     '''
     return {
-        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzg5Nzk1OSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc5MDE1NTksImlhdCI6MTUzNzg5Nzk1OSwiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.mgtgoWVyIAxx1foU60k71heG8f5Ocp8K1eLLc1U1ldGlcmn7LikNl1geFW3hsy9bU2t0VKVQsnFl2CxDc82qrWviQZLTVsTL9kkpTOc_n5I7MuBD-ByXCyqymgAMnc3xWWnBcwDKVuy8vQvutaUWbEwgl2StPItnJ7il4qLViGaSNeT5b3mkzmg84Zpl4hbB_DNx5wVxjdt1jjcMT4Q6RNl-vB0DXVsRBeNFDAW341YwSj1tZ_ywWpK1z1xP3mAJNJLce-tqvtfEgyqVdVfwFC0j_TdXFpRa-P5NYh89YWKz6aoLiQB70-YfW-7EwrW7thJMjXE5WFODvYS3kUadog',
+        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzkwNzMwMywiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc5MTA5MDMsImlhdCI6MTUzNzkwNzMwMywiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.jn6n-29wC9H1BvFB4medsd6KSWgGxAM6CpeBvPUP_LQoI4cTYGsDIUgJ65Dl4IRyYb46xMP5SLGT-5CK447Vq69iDWL_ITb4A7IxAVVE6eKLH0_CYYh6XzjV4IJwkug971B-KIFUu_urqgXa1NepKf8Sj224yDqaLSxDAN1DFen0VvWgaPDbyJ0DRDRGDc48ZTVNwmWRMEcFKVs-u5uudKtTIjb_gfxH3k-r_JWzlxBgWdYznTBgb46rp4Z63lfMMutLnOBBrEUqTA3qhtaT1ZzKPLqC2Ro9J79t9v9DjoC9bEH11375Z2mIIg7gDXbWsHkv9kvkb01suh8s3XRfbA',
         'uuid': 'afd6f4bd-67de-4df2-b518-0e9b05a49012',
         'z': '0',
         't': '0'
@@ -31,9 +33,8 @@ def _event_path_param(event, key):
 
 def _event_query_params(event):
     '''
-    query_params = event['queryStringParameters']
     return {
-        'c': '1|13746:22528$FFFFFF',
+        'c': '1|0:21627$FFFFFF',
         'maps': '[{"reverse":{"enabled":false}}]',
         'm': 'c'
     }
@@ -48,6 +49,21 @@ def json_custom(obj: Any) -> str:
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     raise TypeError("Type {} not serializable".format(type(obj)))
+
+
+def _s3_get(client, bucket, uuid, x, y, z, t, c, level):
+    '''Fetch a specific PNG from S3 and decode'''
+
+    # Use the indices to build the key
+    key = f'{uuid}/C{c}-T{t}-Z{z}-L{level}-Y{y}-X{x}.png'
+
+    obj = boto3.resource('s3').Object(bucket, key)
+    body = obj.get()['Body']
+    data = body.read()
+    stream = BytesIO(data)
+    image = cv2.imdecode(np.fromstring(stream.getvalue(),
+                                       dtype=np.uint8), 0)
+    return image
 
 
 def make_response(code: int, body: Union[Dict, List]) -> Dict[str, Any]:
@@ -145,16 +161,12 @@ class Handler:
     def load_tile(self, c, l, y, x):
         ''' Minerva loads a single tile '''
 
-        token = self.token
+        client = None
         uuid = self.uuid
-        keywords = {
-            't': 0,
-            'z': 0,
-            'l': l,
-            'x': x,
-            'y': y
-        }
-        return MinervaApi.image(uuid, token, c, None, **keywords)
+        bucket = self.bucket
+
+        args = (client, bucket, uuid, x, y, 0, 0, c, l)
+        return _s3_get(*args)
 
     @response(200)
     def render(self, event, context):
