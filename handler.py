@@ -199,8 +199,8 @@ class Handler:
         out[y_0:y_1, x_0:x_1] = image
 
         # Return encoded png
-        output = (255 * out).astype(np.uint8)
-        png_output = cv2.imencode('.png', output)[1]  # DESIRED
+        output = (255 * out).astype(np.uint8)[:, :, ::-1]
+        png_output = cv2.imencode('.png', output)[1]
         print('encoded length is ', len(png_output))
         return png_output
 
