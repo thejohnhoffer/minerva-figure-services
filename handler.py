@@ -30,18 +30,15 @@ def _event_path_param(event, key):
 
 
 def _event_query_params(event):
+    '''
     query_params = event['queryStringParameters']
-    print('QUERY PARAMETERS')
-    print(query_params)
     return {
         'c': '1|13746:22528$FFFFFF',
         'maps': '[{"reverse":{"enabled":false}}]',
         'm': 'c'
     }
     '''
-    query_params = event['queryStringParameters']
-    return query_params
-    '''
+    return event['queryStringParameters']
 
 
 def json_custom(obj: Any) -> str:
