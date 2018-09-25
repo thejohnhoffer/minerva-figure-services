@@ -18,18 +18,21 @@ logger.setLevel(logging.INFO)
 
 
 def _event_path_param(event, key):
+    '''
     return {
-        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzgxNzE1NCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc4MjA3NTQsImlhdCI6MTUzNzgxNzE1NCwiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.dCaV9o50lnnWyYJ4HsrrMelS7NQdt5y8J1_5IAdz5jOPrXxBoOTg8duyuWCChOnOMPhvJF1tjPQ3t136HYQ6EcXsEK0q6Xk2K0x2l4CHnviwU0ENgmViDjLHnIF_q1icw9RPeWkiH04z6v4tKHJxSt-l-d3QG8nKlg7dpiWBWq0cbnpHveC0VAsf-iyaMVnzOpRcMG0SIgjPyG3b6kydtqhDM13bb3lZ6XjiLUP6CG9sVLYaESeYU9WMp1E8ujCfqrhR8ftkmpMZqc591ovcV9u2fkI3bPoM1fVEKtXNWqaNpYJKt_zxOe_BWRVE9cMYx_-zZVH-LbyvVnZzc3kH2g',
+        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzg5Nzk1OSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc5MDE1NTksImlhdCI6MTUzNzg5Nzk1OSwiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.mgtgoWVyIAxx1foU60k71heG8f5Ocp8K1eLLc1U1ldGlcmn7LikNl1geFW3hsy9bU2t0VKVQsnFl2CxDc82qrWviQZLTVsTL9kkpTOc_n5I7MuBD-ByXCyqymgAMnc3xWWnBcwDKVuy8vQvutaUWbEwgl2StPItnJ7il4qLViGaSNeT5b3mkzmg84Zpl4hbB_DNx5wVxjdt1jjcMT4Q6RNl-vB0DXVsRBeNFDAW341YwSj1tZ_ywWpK1z1xP3mAJNJLce-tqvtfEgyqVdVfwFC0j_TdXFpRa-P5NYh89YWKz6aoLiQB70-YfW-7EwrW7thJMjXE5WFODvYS3kUadog',
         'uuid': 'afd6f4bd-67de-4df2-b518-0e9b05a49012',
         'z': '0',
         't': '0'
     }[key]
     '''
     return event['pathParameters'][key]
-    '''
 
 
 def _event_query_params(event):
+    query_params = event['queryStringParameters']
+    print('QUERY PARAMETERS')
+    print(query_params)
     return {
         'c': '1|13746:22528$FFFFFF',
         'maps': '[{"reverse":{"enabled":false}}]',
@@ -37,7 +40,6 @@ def _event_query_params(event):
     }
     '''
     query_params = event['queryStringParameters']
-    print(query_params)
     return query_params
     '''
 
@@ -205,9 +207,7 @@ class Handler:
 
         # Return encoded png
         output = (255 * out).astype(np.uint8)
-        png_output = cv2.imencode('.png', output[:425, :424, :])[1]  # OK
-        #png_output = cv2.imencode('.png', output[:425, :425, :])[1]  # TOO MUCH
-        #png_output = cv2.imencode('.png', output)[1]  # DESIRED
+        png_output = cv2.imencode('.png', output)[1]  # DESIRED
         print('encoded length is ', len(png_output))
         return png_output
 

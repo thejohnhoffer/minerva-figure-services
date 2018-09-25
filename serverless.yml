@@ -19,8 +19,13 @@ functions:
             parameters:
               querystrings:
                 c: true
-                m: true
-                maps: true
+                m: false
+                maps: false
+              paths:
+                token: true
+                uuid: true
+                z: true
+                t: true
 plugins:
   - serverless-attach-managed-policy
   - serverless-python-requirements
