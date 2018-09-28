@@ -8,6 +8,32 @@ provider:
     - "arn:aws:iam::292075781285:policy/access_minerva_figures"
     - "arn:aws:iam::292075781285:policy/create_minerva_figure_services"
 functions:
+  open_with:
+    handler: handler.open_with
+    events:
+      - http:
+          cors: true
+          method: get
+          path: webgateway/open_with/
+  open_with_minerva_login:
+    handler: handler.open_with_minerva_login
+    events:
+      - http:
+          cors: true
+          method: get
+          path: webgateway/open_with/minerva_login.js
+  image_data:
+    handler: handler.image_data
+    events:
+      - http:
+          cors: true
+          method: get
+          path: figure/imgData/{token}/{uuid}/
+          request:
+            parameters:
+              paths:
+                token: true
+                uuid: true
   render:
     handler: handler.render
     events:
@@ -39,4 +65,4 @@ custom:
     dockerFile: Dockerfile
   apigwBinary:
     types:
-      - "image/png"
+      - "*/*"
