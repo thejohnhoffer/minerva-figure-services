@@ -1,5 +1,5 @@
 numpy
 opencv-python
-git+git://github.com/thejohnhoffer/minerva-scripts@8088284028b82406a59d6a4db474c82b7c03072e#egg=minerva-scripts
-git+git://github.com/thejohnhoffer/minerva-lib-python@c5baaa78bfb60f5ca3500d9ffe79ef987b0f333d#egg=minerva-lib
+git+git://github.com/thejohnhoffer/minerva-scripts@a045dd9f04df25a5635222d150bd8edbf3250af9#egg=minerva-scripts
+git+git://github.com/thejohnhoffer/minerva-lib-python@6eb9a845b8fe62475e1de32e7b14949e23cd7621#egg=minerva-lib
 tornado>=5.1
