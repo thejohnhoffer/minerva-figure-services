@@ -497,7 +497,7 @@ class Handler:
     # Domain of Minerva
     domain = 'lze4t3ladb.execute-api.us-east-1.amazonaws.com/dev'
     # Domain of the Minerva-OMERO adpater
-    own_domain = '8i7q09uti0.execute-api.us-east-1.amazonaws.com/dev'
+    own_domain = 'nwwo7xr274.execute-api.us-east-1.amazonaws.com/beta'
 
     def load_tile(self, c, l, settings):
         ''' Minerva loads a single tile
