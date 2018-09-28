@@ -8,9 +8,10 @@ import numpy as np
 from io import BytesIO
 from functools import wraps
 from datetime import date, datetime
+from multiprocessing.pool import ThreadPool
 from typing import Any, Callable, Dict, Union, List
 
-from minerva_scripts.crop import do_crop
+from minerva_lib import crop
 from minerva_scripts.omeroapi import OmeroApi
 from minerva_scripts.minervaapi import MinervaApi
 
@@ -327,10 +328,11 @@ const newAddImages = function(iIds) {
 );
 '''
 
+
 def _event_path_param(event, key):
     '''
     return {
-        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJhdWQiOiI2Y3RzbmpqZ2xtdG5hMnE1Zmd0cmp1ZzQ3ayIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUzNzkwNzMwMywiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwibmFtZSI6Ik1pbmVydmEgR3Vlc3QiLCJjb2duaXRvOnVzZXJuYW1lIjoiNjI5NjJmM2MtNzkyNC00ZTg3LWE4ZjUtNjY2ODkxMjE5YWY1IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZ3Vlc3QiLCJleHAiOjE1Mzc5MTA5MDMsImlhdCI6MTUzNzkwNzMwMywiZW1haWwiOiJqb2huQGhvZmYuaW4ifQ.jn6n-29wC9H1BvFB4medsd6KSWgGxAM6CpeBvPUP_LQoI4cTYGsDIUgJ65Dl4IRyYb46xMP5SLGT-5CK447Vq69iDWL_ITb4A7IxAVVE6eKLH0_CYYh6XzjV4IJwkug971B-KIFUu_urqgXa1NepKf8Sj224yDqaLSxDAN1DFen0VvWgaPDbyJ0DRDRGDc48ZTVNwmWRMEcFKVs-u5uudKtTIjb_gfxH3k-r_JWzlxBgWdYznTBgb46rp4Z63lfMMutLnOBBrEUqTA3qhtaT1ZzKPLqC2Ro9J79t9v9DjoC9bEH11375Z2mIIg7gDXbWsHkv9kvkb01suh8s3XRfbA',
+        'token': 'eyJraWQiOiJYT0E0b01xV1RsMzFBbGRMQUh3UXNzREoyWEg5ZnFlU015MVJaVXdSb2dvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI2Mjk2MmYzYy03OTI0LTRlODctYThmNS02NjY4OTEyMTlhZjUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfWXVURjlTVDRKIiwiY29nbml0bzp1c2VybmFtZSI6IjYyOTYyZjNjLTc5MjQtNGU4Ny1hOGY1LTY2Njg5MTIxOWFmNSIsInByZWZlcnJlZF91c2VybmFtZSI6Imd1ZXN0IiwiYXVkIjoiNmN0c25qamdsbXRuYTJxNWZndHJqdWc0N2siLCJldmVudF9pZCI6IjNhM2FjNGQxLWMzMmItMTFlOC1iOGRhLWViMDA0MDViZGQ5ZCIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTM4MTQ1MTA2LCJuYW1lIjoiTWluZXJ2YSBHdWVzdCIsImV4cCI6MTUzODE0ODcwNiwiaWF0IjoxNTM4MTQ1MTA2LCJlbWFpbCI6ImpvaG5AaG9mZi5pbiJ9.aXj6moXfi4xvuCA45r7NWYR0wqYDJK1hKhNYzqRLzc-g4zeOpaqUH5lkFMnSqDKuownr9o0PrPZ6NQEb74j3miDT1vjbeQdFsPwPS-HNvJwuQ1D_khzF4GbUigaec5cE9gYtpin3TSwkUBeVetYP7mDupggKBi996BzKNZN8D6yL5TUeOduyu453qWqU91idxKUkCUeIOyuvtR1dzU-6zvAM6rV_reeTyLfyfth_lC6y4Jpn4r3oRBT3-2cHMc6TmCgqcPpVCPROfp7ojWNNXQshHqf3iyRxo_MOQP3rGmVexxDL9r4p571LHcaJ8UqOG9sy20S6pfMXXWqvf1qLRA',
         'uuid': 'afd6f4bd-67de-4df2-b518-0e9b05a49012',
         'z': '0',
         't': '0'
@@ -497,15 +499,83 @@ class Handler:
     # Domain of the Minerva-OMERO adpater
     own_domain = '8i7q09uti0.execute-api.us-east-1.amazonaws.com/dev'
 
-    def load_tile(self, c, l, y, x):
-        ''' Minerva loads a single tile '''
+    def load_tile(self, c, l, settings):
+        ''' Minerva loads a single tile
+        
+        Args:
+            c: channel id
+            l: pyramid level
+            settings: dict like {
+                'indices': (y, x),
+                'color': (red, green, blue),
+                'min': 0,
+                'max': 1
+            }
+
+        Returns:
+            Modified settings with loaded image
+        '''
 
         client = None
         uuid = self.uuid
         bucket = self.bucket
+        (y, x) = settings['indices']
 
         args = (client, bucket, uuid, x, y, 0, 0, c, l)
-        return _s3_get(*args)
+        settings['image'] = _s3_get(*args)
+        return settings
+
+    def do_crop(self, channels, tile_shape, full_origin, full_shape,
+                levels=1, max_size=2000):
+        ''' Interface with minerva_lib.crop
+
+        Args:
+            channels: List of dicts of channel rendering settings
+            tile_shape: The height, width of a single tile
+            full_origin: Request's full-resolution y, x origin
+            full_shape: Request's full-resolution height, width
+            levels: The number of pyramid levels
+            max_size: The maximum response height or width
+
+        Returns:
+            2D numpy float array of with height, width of at most max_size
+            The array is a composite of all channels for full or partial
+            tiles within `full_shape` from `full_origin`.
+        '''
+
+        level = crop.get_optimum_pyramid_level(full_shape, levels,
+                                               max_size, False)
+
+        # Select all tiles for any given channel at pyramid level
+        crop_size = crop.scale_by_pyramid_level(full_shape, level)
+        crop_origin = crop.scale_by_pyramid_level(full_origin, level)
+        tiles = crop.select_tiles(tile_shape, crop_origin, crop_size)
+        print(f'Cropping 1/{level} scale')
+
+        load_args = []
+
+        for channel in channels:
+
+            (red, green, blue) = channel['color']
+            _id = channel['channel']
+            _min = channel['min']
+            _max = channel['max']
+
+            for (y, x) in tiles:
+
+                load_args.append((_id, level, {
+                    'min': _min,
+                    'max': _max,
+                    'indices': (y, x),
+                    'color': (red, green, blue),
+                }))
+
+        thread_count = len(channels) * len(tiles)
+        pool = ThreadPool(processes=thread_count)
+        image_tiles = pool.starmap(self.load_tile, load_args)
+
+        return crop.composite_subtiles(image_tiles, tile_shape,
+                                       crop_origin, crop_size)
 
     @response(200)
     def open_with(self, event, context):
@@ -549,7 +619,7 @@ class Handler:
 
         # Make array of channel parameters
         inputs = zip(keys['chan'], keys['c'], keys['r'])
-        channels = map(MinervaApi.format_input, inputs)
+        channels = list(map(MinervaApi.format_input, inputs))
 
         # Region with margins
         outer_origin = keys['origin']
@@ -565,9 +635,8 @@ class Handler:
         request_shape = request_end - request_origin
 
         # Minerva does the cropping
-        image = do_crop(self.load_tile, channels, keys['tile_shape'],
-                        request_origin, request_shape, keys['levels'],
-                        keys['max_size'])
+        image = self.do_crop(channels, keys['tile_shape'], request_origin,
+                             request_shape, keys['levels'], keys['max_size'])
 
         # Position cropped region within margins
         y_0, x_0 = (request_origin - outer_origin).astype(np.int64)
