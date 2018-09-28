@@ -365,7 +365,7 @@ def json_custom(obj: Any) -> str:
 def _s3_get(client, bucket, uuid, x, y, z, t, c, level):
     '''Fetch a specific PNG from S3 and decode'''
 
-    # Use the indices to build the key
+    # Use the grid to build the key
     key = f'{uuid}/C{c}-T{t}-Z{z}-L{level}-Y{y}-X{x}.png'
 
     obj = boto3.resource('s3').Object(bucket, key)
@@ -477,8 +477,10 @@ def response(code: int) -> Callable[..., Dict[str, Any]]:
                 else:
                     return make_response(code, str(output))
             except KeyError as e:
+                logger.exception(e)
                 return make_json_response(400, {'error': str(e)})
             except ValueError as e:
+                logger.exception(e)
                 return make_json_response(422, {'error': str(e)})
             except Exception as e:
                 logger.exception(e)
@@ -507,7 +509,7 @@ class Handler:
             c: channel id
             l: pyramid level
             settings: dict like {
-                'indices': (y, x),
+                'grid': (y, x),
                 'color': (red, green, blue),
                 'min': 0,
                 'max': 1
@@ -520,7 +522,7 @@ class Handler:
         client = None
         uuid = self.uuid
         bucket = self.bucket
-        (y, x) = settings['indices']
+        (y, x) = settings['grid']
 
         args = (client, bucket, uuid, x, y, 0, 0, c, l)
         settings['image'] = _s3_get(*args)
@@ -548,9 +550,9 @@ class Handler:
                                                max_size, False)
 
         # Select all tiles for any given channel at pyramid level
-        crop_size = crop.scale_by_pyramid_level(full_shape, level)
-        crop_origin = crop.scale_by_pyramid_level(full_origin, level)
-        tiles = crop.select_tiles(tile_shape, crop_origin, crop_size)
+        crop_size = crop.transform_coordinates_to_level(full_shape, level)
+        crop_origin = crop.transform_coordinates_to_level(full_origin, level)
+        tiles = crop.select_grids(tile_shape, crop_origin, crop_size)
         print(f'Cropping 1/{level} scale')
 
         load_args = []
@@ -567,7 +569,7 @@ class Handler:
                 load_args.append((_id, level, {
                     'min': _min,
                     'max': _max,
-                    'indices': (y, x),
+                    'grid': (y, x),
                     'color': (red, green, blue),
                 }))
 
