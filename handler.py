@@ -189,8 +189,9 @@ const use_token = function(token, importImage, get_img_src) {
         var urlList = imgDataUrl.split('/');
         var first_index = urlList.indexOf('figure');
         var aws_gateway = WEBGATEWAYINDEX.split('/')[2];
+        var aws_stage = WEBGATEWAYINDEX.split('/')[3];
         urlList.splice(first_index + 2, 0, token);
-        urlList.splice(0, first_index, 'https:', '', aws_gateway, 'dev');
+        urlList.splice(0, first_index, 'https:', '', aws_gateway, aws_stage);
         arguments[0] = urlList.join('/');
         return importImage.apply(this, arguments);
     };
