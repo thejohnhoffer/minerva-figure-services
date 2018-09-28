@@ -29,7 +29,7 @@ functions:
       - http:
           cors: true
           method: get
-          path: figure/imgData/{token}/{uuid}/
+          path: imgData/{token}/{uuid}/
           request:
             parameters:
               paths:
