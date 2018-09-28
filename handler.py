@@ -187,10 +187,10 @@ const use_token = function(token, importImage, get_img_src) {
     // Overwrite importImage function
     FigureModel.prototype.importImage = function(imgDataUrl) {
         var urlList = imgDataUrl.split('/');
-        var first_index = urlList.indexOf('figure');
+        var first_index = urlList.indexOf('imgData');
         var aws_gateway = WEBGATEWAYINDEX.split('/')[2];
         var aws_stage = WEBGATEWAYINDEX.split('/')[3];
-        urlList.splice(first_index + 2, 0, token);
+        urlList.splice(first_index + 1, 0, token);
         urlList.splice(0, first_index, 'https:', '', aws_gateway, aws_stage);
         arguments[0] = urlList.join('/');
         return importImage.apply(this, arguments);
@@ -200,8 +200,8 @@ const use_token = function(token, importImage, get_img_src) {
     Panel.prototype.get_img_src = function() {
         var img_src = get_img_src.apply(this, arguments);
         var src_list = img_src.split('/');
-        var first_index = src_list.indexOf('webgateway');
-        src_list.splice(first_index + 2, 0, token);
+        var first_index = src_list.indexOf('render_image');
+        src_list.splice(first_index + 1, 0, token);
         var new_src = src_list.join('/');
         return encodeURI(new_src);
     };
