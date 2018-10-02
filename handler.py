@@ -473,7 +473,6 @@ def response(code: int) -> Callable[..., Dict[str, Any]]:
                 if output_type is np.ndarray:
                     return make_binary_response(code, output)
                 elif output_type in (dict, list):
-                    print('JSON OBJECT', output)
                     return make_json_response(code, output)
                 else:
                     return make_response(code, str(output))
