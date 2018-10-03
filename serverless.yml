@@ -7,6 +7,7 @@ provider:
   managedPolicyArns:
     - "arn:aws:iam::292075781285:policy/read_minerva_tiles"
     - "arn:aws:iam::292075781285:policy/read_minerva_metadata"
+    - "arn:aws:iam::292075781285:policy/call_minerva_getImage"
     - "arn:aws:iam::292075781285:policy/access_minerva_figures"
     - "arn:aws:iam::292075781285:policy/create_minerva_figure_services"
 functions:

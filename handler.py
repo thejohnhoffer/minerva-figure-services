@@ -1,10 +1,14 @@
 import cv2
 import json
 import boto3
+import urllib
 import base64
 import logging
+import botocore
 import numpy as np
+import xml.etree.ElementTree as ET
 
+from jose import jwt
 from io import BytesIO
 from functools import wraps
 from datetime import date, datetime
@@ -14,6 +18,7 @@ from typing import Any, Callable, Dict, Union, List
 from minerva_lib import crop
 from minerva_scripts.omeroapi import OmeroApi
 from minerva_scripts.minervaapi import MinervaApi
+from minerva_scripts.metadata_xml import parse_image
 
 
 logger = logging.getLogger()
@@ -502,9 +507,13 @@ class Handler:
     # Domain of the Minerva-OMERO adpater
     own_domain = '8i7q09uti0.execute-api.us-east-1.amazonaws.com/dev'
 
+    def token_to_user(self, token):
+        # get the unverified user uuid from the token
+        return jwt.get_unverified_claims(token)['cognito:username']
+
     def load_tile(self, c, l, settings):
         ''' Minerva loads a single tile
-        
+
         Args:
             c: channel id
             l: pyramid level
@@ -601,9 +610,43 @@ class Handler:
 
         self.token = _event_path_param(event, 'token')
         self.uuid = _event_path_param(event, 'uuid')
+        user = self.token_to_user(self.token)
+        bucket = self.bucket
+        uuid = self.uuid
 
-        return MinervaApi.load_config(self.uuid, self.token,
-                                      self.bucket, self.domain)
+        client = boto3.client('lambda')
+        response = client.invoke(
+            FunctionName='292075781285:minerva-test-dev-getImage',
+            InvocationType='RequestResponse',
+            Payload=json.dumps({
+              'pathParameters': {
+                'uuid': uuid
+              },
+              'requestContext': {
+                'authorizer': {
+                  'claims': {
+                    'cognito:username': user
+                  }
+                }
+              }
+            }).encode('utf-8')
+        )
+        payload = json.loads(response['Payload'].read().decode('utf-8'))
+        prefix = json.loads(payload['body'])['data']['fileset_uuid']
+
+        try:
+            s3 = boto3.resource('s3')
+            metadata_file = 'metadata.xml'
+            obj = s3.Object(bucket, f'{prefix}/{metadata_file}')
+            root_xml = obj.get()['Body'].read().decode('utf-8')
+            root = ET.fromstring(root_xml)
+            config = parse_image(root, uuid)
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                print("The object does not exist.")
+            return {}
+
+        return config
 
     @response(200)
     def render(self, event, context):
