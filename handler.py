@@ -503,7 +503,7 @@ class Handler:
     t = 0
     bucket = 'minerva-test-cf-common-tilebucket-1su418jflefem'
     # Domain of Minerva
-    domain = 'yfo3vr9rw4.execute-api.us-east-1.amazonaws.com/dev'
+    domain = 'nldzj7hd69.execute-api.us-east-1.amazonaws.com/dev'
     # Domain of the Minerva-OMERO adpater
     own_domain = '8i7q09uti0.execute-api.us-east-1.amazonaws.com/dev'
 
